@@ -13,8 +13,8 @@ def parse_list():
 
     # for each person in list
     with open('users.csv', 'r') as csvfile:
-        spamreader = csv.reader(csvfile, delimiter=',')
-        for row in spamreader:
+        reader = csv.reader(csvfile, delimiter=',')
+        for row in reader:
             # add person to user_list
             user = Person(hash(datetime.now()), row[0], row[1])
             user_list.append(user)
