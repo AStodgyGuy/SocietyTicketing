@@ -31,17 +31,6 @@ class QRGenerator():
         qr.add_data("ID:"+ self.ID +",NAME:" + self.name)
         qr.make(fit=True)
 
-        img = qr.make_image(fill_color="black", back_color="transparent")
-        width, height = img.size
-
-        pixels = img.load()
-        R_OLD, G_OLD, B_OLD = (0,0,0)
-        R_NEW, G_NEW, B_NEW = (246, 214, 136)
-
-        for x in range(width):
-            for y in range(height):
-                r, g, b, a = pixels[x, y]
-                if (r, g, b) == (R_OLD, G_OLD, B_OLD):
-                    pixels[x, y] = (R_NEW, G_NEW, B_NEW, a)
+        img = qr.make_image(fill_color="black", back_color="white")
 
         img.save(str(self.ID) + ".png")

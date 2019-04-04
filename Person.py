@@ -17,4 +17,4 @@ class Person():
         '''
             Method that returns user information seperated by commas
         '''
-        return self.ID + "," + self.name + "," + self.email_address
+        return self.ID + ", " + self.name + ", " + self.email_address

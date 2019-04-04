@@ -15,6 +15,7 @@ while True:
         ID = result[0].split(":")
         NAME = result[1].split(":")
         print(ID, NAME)
+        exit(1)
  
     cv2.imshow("QR Code Reader", frame)
 
