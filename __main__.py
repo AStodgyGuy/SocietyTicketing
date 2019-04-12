@@ -4,10 +4,13 @@ from QRGenerator import QRGenerator
 from Person import Person
 from datetime import datetime
 
+
 import os
 import csv
+import uuid
 
 user_list = []
+
 
 def parse_list():
 
@@ -16,7 +19,7 @@ def parse_list():
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
             # add person to user_list
-            user = Person(hash(datetime.now()), row[0], row[1])
+            user = Person(uuid.uuid4(), row[0], row[1])
             user_list.append(user)
             with open('PurchasedTickets.csv','a') as fd:
                 fd.write(user.toString()+"\n")
