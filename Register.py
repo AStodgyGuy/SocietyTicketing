@@ -1,5 +1,5 @@
 from tkinter import *
-from tkinter.ttk import *
+import csv
 
 # main window
 master = Tk()
@@ -107,7 +107,6 @@ def Get_ID():
 	def Ok():
 		if v_id != "":
 			print(v_id.get())
-			# v_id = v_txt_id
 		top_id.destroy()
 	top_ok_btn = Button(top_id, text="OK", command=Ok)
 	top_ok_btn.grid(sticky = "E", padx=default_padding_x)
@@ -121,10 +120,6 @@ def Show_Member_Choice():
 
 radio1_member = Radiobutton(radio_frame_member, text="Yes", variable=v_member, value=1, command=Show_Member_Choice).grid(column = 0, row = 1)
 radio2_member = Radiobutton(radio_frame_member, text="No", variable=v_member, value=0, command=Show_Member_Choice).grid(column = 1, row = 1)
-
-# # the button
-# btn = Button(master, text="Click Me", command=clicked)
-# btn.grid(column=2, row=0)
 
 def Get_Details():
 	fname = "empty!"
@@ -174,7 +169,6 @@ def Confirmation_Window():
 	top_confirm.geometry("300x400")
 	smiglet = Get_Details()
 	index = 0
-	print(smiglet)
 	for att in smiglet:
 		Label(top_confirm, text = str(att) + ": " + smiglet[att], font=label_font).grid(padx=default_padding_x, pady=default_padding_y, column = 0, row = index, sticky='W')
 		index = index + 1
@@ -182,6 +176,11 @@ def Confirmation_Window():
 	yes_or_no = 0
 	def Yes():
 		# submit information
+		with open('smiglets.csv', 'a') as csvFile:
+			writer = csv.writer(csvFile)
+			writer.writerow(smiglet.values())
+			csvFile.close()
+			print(smiglet)
 		master.destroy()
 	def No():
 		top_confirm.destroy()
