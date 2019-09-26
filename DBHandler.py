@@ -79,13 +79,25 @@ class DBHandler:
         # check if exists
         check_exists = f"SELECT COUNT(*) FROM smig_person WHERE email='{person.email}'"
         if self.exists_one(check_exists):
-            add_person_row = f"INSERT INTO smig_membership(`person_email`, `hasPaid`) VALUES ('{person.email}', '{'1' if has_paid else '0'}')"
-            print (add_person_row)
-            self.query(add_person_row)
+            add_member_row = f"INSERT INTO smig_membership(`person_email`, `hasPaid`) VALUES ('{person.email}', '{'1' if has_paid else '0'}')"
+            print (add_member_row)
+            self.query(add_member_row)
             self.log("add_membership (OK)", f"{person.email}, {'paid' if has_paid else 'not paid'}")
             self.mariadb_connection.commit()
         else:
-            self.log("add_membership (NEX)", person.to_string())
+            self.log("add_membership (NEX)", f"{person.email}, {'paid' if has_paid else 'not paid'}")
+
+    def add_ID(self, person, type, number):
+        # check if exists
+        check_exists = f"SELECT COUNT(*) FROM smig_membership WHERE person_email='{person.email}'"
+        if self.exists_one(check_exists):
+            add_id_row = f"INSERT INTO smig_ID(`person_email`, `type`, `number`) VALUES ('{person.email}', '{type}', '{number}')"
+            print (add_id_row)
+            self.query(add_id_row)
+            self.log("add_ID (OK)", f"{person.email}, {'Library' if type==1 else 'Student'}, {number}")
+            self.mariadb_connection.commit()
+        else:
+            self.log("add_ID (NEX)", f"{person.email}, {'Library' if type==1 else 'Student'}, {number}")
 
     # convert to CSV
 
@@ -104,3 +116,5 @@ p1 = Person("Jane", "Smith", "js20", "1", "Computer Science")
 p2 = Person("John", "Sax", "js19", "2", "Physics")
 db.add_person(p1)
 db.add_membership(p2, True)
+db.add_ID(p1, 1, "8080808808")
+db.add_ID(p2, 0, "160009424")
