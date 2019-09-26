@@ -56,28 +56,36 @@ class DBHandler:
     def exists_one(self, statement):
         try:
             self.query(statement)
-            if (self.cursor.fetchone() == None):
-                print(self.cursor.fetchone())
-                return False
+            if (self.cursor.fetchone()[0] == 1):
+                return True
         except Exception as e:
             print(e)
-        return True
+        return False
 
     # populate tables
     def add_person(self, person):
-        o = "Add person"
         # check if exists
         check_exists = f"SELECT COUNT(*) FROM smig_person WHERE email='{person.email}'"
         if not self.exists_one(check_exists):
             add_person_row = f"INSERT INTO smig_person(`first_name`, `last_name`, `email`, `year`, `course`) VALUES ('{person.first_name}', '{person.last_name}', '{person.email}', '{person.year}', '{person.course}')"
             print (add_person_row)
             self.query(add_person_row)
-            self.log(o, person.to_string())
+            self.log("add_person (OK)", person.to_string())
             self.mariadb_connection.commit()
         else:
-            self.log("Duplicate person", person.to_string())
-    # def get_person():
+            self.log("add_person (DUP)", person.to_string())
 
+    def add_membership(self, person, has_paid):
+        # check if exists
+        check_exists = f"SELECT COUNT(*) FROM smig_person WHERE email='{person.email}'"
+        if self.exists_one(check_exists):
+            add_person_row = f"INSERT INTO smig_membership(`person_email`, `hasPaid`) VALUES ('{person.email}', '{'1' if has_paid else '0'}')"
+            print (add_person_row)
+            self.query(add_person_row)
+            self.log("add_membership (OK)", f"{person.email}, {'paid' if has_paid else 'not paid'}")
+            self.mariadb_connection.commit()
+        else:
+            self.log("add_membership (NEX)", person.to_string())
 
     # convert to CSV
 
@@ -93,4 +101,6 @@ class DBHandler:
 
 db = DBHandler()
 p1 = Person("Jane", "Smith", "js20", "1", "Computer Science")
+p2 = Person("John", "Sax", "js19", "2", "Physics")
 db.add_person(p1)
+db.add_membership(p2, True)
