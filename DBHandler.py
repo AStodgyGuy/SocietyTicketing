@@ -1,5 +1,7 @@
 import getpass
+import datetime
 import mysql.connector as mariadb
+from smig_person import Person
 
 class DBHandler:
 
@@ -14,9 +16,13 @@ class DBHandler:
         self.create_tables()
 
     def connect_db(self):
-        self.mariadb_connection = mariadb.connect(user='smig', password="jommakan_55", database='smig_1920')
-        self.cursor = self.mariadb_connection.cursor()
-        print("Connect success")
+        try:
+            self.mariadb_connection = mariadb.connect(user='smig', password="jommakan_55", database='smig_1920')
+            self.cursor = self.mariadb_connection.cursor()
+            print("Connect success")
+        except Exception as e:
+            print(e)
+            return None
 
     def get_password(self):
         try:
@@ -27,7 +33,7 @@ class DBHandler:
 
     def create_tables(self):
         # create the tables that matter
-        table_person = f"CREATE TABLE IF NOT EXISTS smig_person (first_name VARCHAR({self.NAME_MAX_CHAR}), last_name VARCHAR({self.NAME_MAX_CHAR}), email VARCHAR({self.EMAIL_MAX_CHAR}) PRIMARY KEY NOT NULL)"
+        table_person = f"CREATE TABLE IF NOT EXISTS smig_person (first_name VARCHAR({self.NAME_MAX_CHAR}), last_name VARCHAR({self.NAME_MAX_CHAR}), email VARCHAR({self.EMAIL_MAX_CHAR}) PRIMARY KEY NOT NULL, `year` VARCHAR({self.NAME_MAX_CHAR}), course VARCHAR({self.EVENT_MAX_CHAR}))"
         table_membership = f"CREATE TABLE IF NOT EXISTS smig_membership (person_email VARCHAR({self.EMAIL_MAX_CHAR}) PRIMARY KEY NOT NULL, hasPaid BOOLEAN, CONSTRAINT FOREIGN KEY (person_email) REFERENCES smig_person (email))"
         table_ID = f"CREATE TABLE IF NOT EXISTS smig_ID (person_email VARCHAR({self.EMAIL_MAX_CHAR}) PRIMARY KEY NOT NULL, `type` BOOLEAN, `number` VARCHAR({self.ID_MAX_CHAR}), CONSTRAINT FOREIGN KEY (person_email) REFERENCES smig_person (email))"
         table_event = f"CREATE TABLE IF NOT EXISTS smig_event (id INT PRIMARY KEY AUTO_INCREMENT, `name` VARCHAR({self.EVENT_MAX_CHAR}), price_non_member DECIMAL(10,2), price_member DECIMAL(10,2), `date` DATE, `time` TIME, `location` VARCHAR({self.NAME_MAX_CHAR}))"
@@ -42,12 +48,36 @@ class DBHandler:
 
     def query(self, statement):
         try:
-            self.mariadb_connection.cursor().execute(statement)
+            self.cursor.execute(statement)
         except Exception as e:
             print(e)
             return None
+        
+    def exists_one(self, statement):
+        try:
+            self.query(statement)
+            if (self.cursor.fetchone() == None):
+                print(self.cursor.fetchone())
+                return False
+        except Exception as e:
+            print(e)
+        return True
 
     # populate tables
+    def add_person(self, person):
+        o = "Add person"
+        # check if exists
+        check_exists = f"SELECT COUNT(*) FROM smig_person WHERE email='{person.email}'"
+        if not self.exists_one(check_exists):
+            add_person_row = f"INSERT INTO smig_person(`first_name`, `last_name`, `email`, `year`, `course`) VALUES ('{person.first_name}', '{person.last_name}', '{person.email}', '{person.year}', '{person.course}')"
+            print (add_person_row)
+            self.query(add_person_row)
+            self.log(o, person.to_string())
+            self.mariadb_connection.commit()
+        else:
+            self.log("Duplicate person", person.to_string())
+    # def get_person():
+
 
     # convert to CSV
 
@@ -55,4 +85,12 @@ class DBHandler:
 
     # get values from tables
 
-DBHandler()
+    # create views
+
+    def log(self, operation, string):
+        f = open(f"log{datetime.date.today()}.txt","a+")
+        f.write(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] {operation}: {string}\n")
+
+db = DBHandler()
+p1 = Person("Jane", "Smith", "js20", "1", "Computer Science")
+db.add_person(p1)
